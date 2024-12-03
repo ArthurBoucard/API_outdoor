@@ -5,36 +5,46 @@ namespace App\Entity;
 use App\Repository\POIRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: POIRepository::class)]
 class POI
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
+    #[Groups(['poi'])]
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Groups(['poi'])]
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
+    #[Groups(['poi'])]
     #[ORM\Column(length: 255)]
     private ?string $type = null;
 
+    #[Groups(['poi'])]
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
+    #[Groups(['poi'])]
     #[ORM\Column]
     private ?float $latitude = null;
 
+    #[Groups(['poi'])]
     #[ORM\Column]
     private ?float $longitude = null;
 
+    #[Groups(['poi'])]
     #[ORM\Column]
     private ?int $altitude = null;
 
+    #[Groups(['poi'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $location = null;
 
+    #[Groups(['poi'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $status = null;
 
