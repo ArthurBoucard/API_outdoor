@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map</title>
+    <!-- Add Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        /* Set the size of the map */
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+<h1>Map</h1>
+<!-- Create a container for the map -->
+<div id="map"></div>
+
+<!-- Add Leaflet JS -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<!-- JavaScript to fetch POI data and display on the map -->
+<script>
+    // Initialize the map
+    const map = L.map('map').setView([51.505, -0.09], 13); // Default center (can be adjusted)
+
+    // Set up the tile layer (use OpenStreetMap tiles)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Fetch POI data from your API route
+    fetch('/poi')
+        .then(response => response.json())
+        .then(pois => {
+            pois.forEach(poi => {
+                // For each POI, add a marker to the map
+                L.marker([poi.latitude, poi.longitude])
+                    .addTo(map)
+                    .bindPopup(`<b>${poi.name}</b><br>${poi.type}`);
+            });
+        })
+        .catch(error => console.error('Error fetching POI data:', error));
+</script>
+</body>
+</html>
