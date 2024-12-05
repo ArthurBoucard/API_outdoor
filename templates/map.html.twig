@@ -36,8 +36,40 @@
         .then(response => response.json())
         .then(pois => {
             pois.forEach(poi => {
+                let emoji;
+
+                switch(poi.type) {
+                    case "unguardedRefuge":
+                        emoji = "🏚️";
+                        break;
+                    case "guardedRefuge":
+                        emoji = "🏠";
+                        break;
+                    case "lodge":
+                        emoji = "🏡";
+                        break;
+                    case "waterPoint":
+                        emoji = "💧";
+                        break;
+                    case "summit":
+                        emoji = "⛰️";
+                        break;
+                    case "difficultPassage":
+                        emoji = "⚠️";
+                        break;
+                    case "bivouac":
+                        emoji = "⛺";
+                        break;
+                    case "lake":
+                        emoji = "🌊";
+                        break;
+                    default:
+                        emoji = "❓";
+                }
+
                 const marker = L.marker([poi.latitude, poi.longitude])
-                    .bindPopup(`<b>${poi.name}</b><br>${poi.type}<br><br>${poi.description}`);
+                    .bindPopup(`<b>${poi.name}</b><br>${emoji} ${poi.type}<br><br>${poi.description}`);
+
                 markerCluster.addLayer(marker);
             });
 
