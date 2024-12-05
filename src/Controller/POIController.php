@@ -60,6 +60,7 @@ class POIController extends AbstractController
     {
         $page = (int) $request->query->get('page', 1);
         $type = $request->query->get('type', null);
+        $bbox = $request->query->get('bbox', null);
         $limit = 30;
         $offset = ($page - 1) * $limit;
 
@@ -68,6 +69,26 @@ class POIController extends AbstractController
         if ($type) {
             $qb->andWhere('p.type = :type')
                 ->setParameter('type', $type);
+        }
+
+        if ($bbox) {
+            $coords = explode(',', $bbox);
+
+            if (count($coords) === 4) {
+                $minLon = (float) $coords[0];
+                $minLat = (float) $coords[1];
+                $maxLon = (float) $coords[2];
+                $maxLat = (float) $coords[3];
+
+                $qb->andWhere('p.longitude BETWEEN :minLon AND :maxLon')
+                    ->andWhere('p.latitude BETWEEN :minLat AND :maxLat')
+                    ->setParameter('minLon', $minLon)
+                    ->setParameter('maxLon', $maxLon)
+                    ->setParameter('minLat', $minLat)
+                    ->setParameter('maxLat', $maxLat);
+            } else {
+                return new JsonResponse(['error' => 'Invalid bbox format. Use minLon,minLat,maxLon,maxLat.'], 400);
+            }
         }
 
         $poi = $qb->setFirstResult($offset)
@@ -80,6 +101,8 @@ class POIController extends AbstractController
         return new JsonResponse([
             'page' => $page,
             'limit' => $limit,
+            'type' => $type,
+            'bbox' => $bbox,
             'data' => $data,
         ]);
     }
