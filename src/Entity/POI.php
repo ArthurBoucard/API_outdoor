@@ -30,11 +30,11 @@ class POI
 
     #[Groups(['poi'])]
     #[ORM\Column]
-    private ?float $latitude = null;
+    private ?float $longitude = null;
 
     #[Groups(['poi'])]
     #[ORM\Column]
-    private ?float $longitude = null;
+    private ?float $latitude = null;
 
     #[Groups(['poi'])]
     #[ORM\Column]
@@ -89,18 +89,6 @@ class POI
         return $this;
     }
 
-    public function getLatitude(): ?float
-    {
-        return $this->latitude;
-    }
-
-    public function setLatitude(float $latitude): static
-    {
-        $this->latitude = $latitude;
-
-        return $this;
-    }
-
     public function getLongitude(): ?float
     {
         return $this->longitude;
@@ -109,6 +97,18 @@ class POI
     public function setLongitude(float $longitude): static
     {
         $this->longitude = $longitude;
+
+        return $this;
+    }
+
+    public function getLatitude(): ?float
+    {
+        return $this->latitude;
+    }
+
+    public function setLatitude(float $latitude): static
+    {
+        $this->latitude = $latitude;
 
         return $this;
     }
