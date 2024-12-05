@@ -59,12 +59,18 @@ class POIController extends AbstractController
     public function getAllPOI(EntityManagerInterface $entityManager, Request $request): JsonResponse
     {
         $page = (int) $request->query->get('page', 1);
+        $type = $request->query->get('type', null);
         $limit = 30;
         $offset = ($page - 1) * $limit;
 
-        $poi = $entityManager->getRepository(POI::class)
-            ->createQueryBuilder('p')
-            ->setFirstResult($offset)
+        $qb = $entityManager->getRepository(POI::class)->createQueryBuilder('p');
+
+        if ($type) {
+            $qb->andWhere('p.type = :type')
+                ->setParameter('type', $type);
+        }
+
+        $poi = $qb->setFirstResult($offset)
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
