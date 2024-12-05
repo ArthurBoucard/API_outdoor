@@ -25,6 +25,10 @@ class POI
     private ?string $type = null;
 
     #[Groups(['poi'])]
+    #[ORM\Column(length: 255)]
+    private ?string $subtype = null;
+
+    #[Groups(['poi'])]
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
@@ -73,6 +77,18 @@ class POI
     public function setType(string $type): static
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    public function getSubtype(): ?string
+    {
+        return $this->subtype;
+    }
+
+    public function setSubtype(string $subtype): static
+    {
+        $this->subtype = $subtype;
 
         return $this;
     }
