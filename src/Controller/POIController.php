@@ -38,7 +38,10 @@ class POIController extends AbstractController
         $entityManager->persist($poi);
         $entityManager->flush();
 
-        return new JsonResponse(['status' => 'POI created!']);
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'POI created successfully!',
+        ]);
     }
 
     #[Route('/pois/{id}', name: 'get_poi', methods: ['GET'])]
@@ -52,7 +55,11 @@ class POIController extends AbstractController
 
         $data = $this->serializer->normalize($poi, null, ['groups' => 'poi']);
 
-        return new JsonResponse($data);
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'POI found!',
+            'data' => $data,
+        ]);
     }
 
     #[Route('/pois', name: 'get_all_poi', methods: ['GET'])]
@@ -114,15 +121,13 @@ class POIController extends AbstractController
             $result = $conn->executeQuery($sql, $params)->fetchAllAssociative();
 
             return new JsonResponse([
+                'success' => true,
+                'message' => 'POIs fetched successfully!',
                 'page' => $page,
-                'limit' => $limit,
-                'type' => $type,
-                'bbox' => $bbox,
-                'radius' => $radius,
+                'total' => count($result),
                 'data' => $result,
             ]);
         } catch (\Exception $e) {
-            // Handle any unexpected errors
             return new JsonResponse(['error' => 'An error occurred while fetching data.', 'details' => $e->getMessage()], 500);
         }
     }
