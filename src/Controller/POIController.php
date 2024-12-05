@@ -56,12 +56,25 @@ class POIController extends AbstractController
     }
 
     #[Route('/pois', name: 'get_all_poi', methods: ['GET'])]
-    public function getAllPOI(EntityManagerInterface $entityManager): JsonResponse
+    public function getAllPOI(EntityManagerInterface $entityManager, Request $request): JsonResponse
     {
-        $poi = $entityManager->getRepository(POI::class)->findAll();
+        $page = (int) $request->query->get('page', 1);
+        $limit = 30;
+        $offset = ($page - 1) * $limit;
+
+        $poi = $entityManager->getRepository(POI::class)
+            ->createQueryBuilder('p')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
 
         $data = $this->serializer->normalize($poi, null, ['groups' => 'poi']);
 
-        return new JsonResponse($data);
+        return new JsonResponse([
+            'page' => $page,
+            'limit' => $limit,
+            'data' => $data,
+        ]);
     }
 }
