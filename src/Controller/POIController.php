@@ -61,14 +61,16 @@ class POIController extends AbstractController
         $page = (int) $request->query->get('page', 1);
         $type = $request->query->get('type', null);
         $bbox = $request->query->get('bbox', null);
+        $radius = $request->query->get('radius', null);
         $limit = 30;
         $offset = ($page - 1) * $limit;
 
-        $qb = $entityManager->getRepository(POI::class)->createQueryBuilder('p');
+        $sql = "SELECT * FROM poi WHERE 1=1";
+        $params = [];
 
         if ($type) {
-            $qb->andWhere('p.type = :type')
-                ->setParameter('type', $type);
+            $sql .= " AND type = :type";
+            $params['type'] = $type;
         }
 
         if ($bbox) {
@@ -80,30 +82,48 @@ class POIController extends AbstractController
                 $maxLon = (float) $coords[2];
                 $maxLat = (float) $coords[3];
 
-                $qb->andWhere('p.longitude BETWEEN :minLon AND :maxLon')
-                    ->andWhere('p.latitude BETWEEN :minLat AND :maxLat')
-                    ->setParameter('minLon', $minLon)
-                    ->setParameter('maxLon', $maxLon)
-                    ->setParameter('minLat', $minLat)
-                    ->setParameter('maxLat', $maxLat);
+                $sql .= " AND longitude BETWEEN :minLon AND :maxLon AND latitude BETWEEN :minLat AND :maxLat";
+                $params['minLon'] = $minLon;
+                $params['maxLon'] = $maxLon;
+                $params['minLat'] = $minLat;
+                $params['maxLat'] = $maxLat;
             } else {
                 return new JsonResponse(['error' => 'Invalid bbox format. Use minLon,minLat,maxLon,maxLat.'], 400);
             }
         }
 
-        $poi = $qb->setFirstResult($offset)
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult();
+        if ($radius) {
+            [$lon, $lat, $distance] = explode(',', $radius);
 
-        $data = $this->serializer->normalize($poi, null, ['groups' => 'poi']);
+            $sql .= " AND (6371 * acos(
+                        cos(radians(:lat)) * cos(radians(latitude)) *
+                        cos(radians(longitude) - radians(:lon)) +
+                        sin(radians(:lat)) * sin(radians(latitude))
+                    )) <= :distance";
+            $params['lat'] = $lat;
+            $params['lon'] = $lon;
+            $params['distance'] = $distance;
+        }
 
-        return new JsonResponse([
-            'page' => $page,
-            'limit' => $limit,
-            'type' => $type,
-            'bbox' => $bbox,
-            'data' => $data,
-        ]);
+        $sql .= " LIMIT :limit OFFSET :offset";
+        $params['limit'] = $limit;
+        $params['offset'] = $offset;
+
+        try {
+            $conn = $entityManager->getConnection();
+            $result = $conn->executeQuery($sql, $params)->fetchAllAssociative();
+
+            return new JsonResponse([
+                'page' => $page,
+                'limit' => $limit,
+                'type' => $type,
+                'bbox' => $bbox,
+                'radius' => $radius,
+                'data' => $result,
+            ]);
+        } catch (\Exception $e) {
+            // Handle any unexpected errors
+            return new JsonResponse(['error' => 'An error occurred while fetching data.', 'details' => $e->getMessage()], 500);
+        }
     }
 }
