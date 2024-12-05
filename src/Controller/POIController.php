@@ -20,7 +20,7 @@ class POIController extends AbstractController
     }
 
 
-    #[Route('/poi', name: 'create_poi', methods: ['POST'])]
+    #[Route('/pois', name: 'create_poi', methods: ['POST'])]
     public function createPOI(EntityManagerInterface $entityManager, Request $request): JsonResponse
     {
         $body = json_decode($request->getContent(), true);
@@ -41,7 +41,7 @@ class POIController extends AbstractController
         return new JsonResponse(['status' => 'POI created!']);
     }
 
-    #[Route('/poi/{id}', name: 'get_poi', methods: ['GET'])]
+    #[Route('/pois/{id}', name: 'get_poi', methods: ['GET'])]
     public function getPOI(EntityManagerInterface $entityManager, int $id): JsonResponse
     {
         $poi = $entityManager->getRepository(POI::class)->find($id);
@@ -55,7 +55,7 @@ class POIController extends AbstractController
         return new JsonResponse($data);
     }
 
-    #[Route('/poi', name: 'get_all_poi', methods: ['GET'])]
+    #[Route('/pois', name: 'get_all_poi', methods: ['GET'])]
     public function getAllPOI(EntityManagerInterface $entityManager): JsonResponse
     {
         $poi = $entityManager->getRepository(POI::class)->findAll();
