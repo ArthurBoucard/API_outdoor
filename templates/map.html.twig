@@ -37,7 +37,7 @@
         .then(pois => {
             pois.forEach(poi => {
                 const marker = L.marker([poi.latitude, poi.longitude])
-                    .bindPopup(`<b>${poi.name}</b><br>${poi.type}`);
+                    .bindPopup(`<b>${poi.name}</b><br>${poi.type}<br><br>${poi.description}`);
                 markerCluster.addLayer(marker);
             });
 
